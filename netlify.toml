@@ -1,0 +1,29 @@
+[build]
+  command = "npm run build"
+  publish = "build"
+
+[build.environment]
+  SUPABASE_URL = "@supabase_url"
+  SUPABASE_ANON_KEY = "@supabase_anon_key"
+  SUPABASE_SERVICE_ROLE_KEY = "@supabase_service_role_key"
+
+[context.production.environment]
+  NODE_ENV = "production"
+
+[context.production]
+  command = "npm run build"
+
+[context.production.deploy-redirects]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://api.whatsflowx.com/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

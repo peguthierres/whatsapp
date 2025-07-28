@@ -1,0 +1,52 @@
+# Supabase Project Configuration
+
+[project]
+name = "whatsflowx"
+description = "WhatsApp Automation Platform"
+version = "1.0.0"
+
+[database]
+url = "postgres://postgres:postgres@db:5432/postgres"
+schema = "public"
+
+[functions]
+directory = "functions"
+
+[migrations]
+directory = "migrations"
+
+[local]
+port = 54322
+
+[local.auth]
+url = "http://localhost:54322/auth/v1"
+
+[local.storage]
+url = "http://localhost:54322/storage/v1"
+
+[local.realtime]
+url = "ws://localhost:54322/realtime/v1"
+
+[local.rest]
+url = "http://localhost:54322/rest/v1"
+
+[local.functions]
+url = "http://localhost:54322/functions/v1"
+
+[local.jwt]
+secret = "your-secret-key-here"
+
+[local.admin]
+email = "admin@whatsflowx.com"
+password = "admin123"
+
+[local.environment]
+SUPABASE_URL = "http://localhost:54322"
+SUPABASE_ANON_KEY = "your-anon-key-here"
+SUPABASE_SERVICE_ROLE_KEY = "your-service-role-key-here"
+
+[local.environment.local]
+NODE_ENV = "development"
+
+[local.environment.production]
+NODE_ENV = "production"

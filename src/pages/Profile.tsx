@@ -1,25 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../services/supabase';
+import { User } from '../types';
 
-const Profile: React.FC = () => {
-  const { user, updateUser } = useAuth();
+export default function Profile() {
+  const { user, updateProfile } = useAuth();
   const [formData, setFormData] = useState({
-    email: '',
-    name: '',
-    phone: '',
-    company: '',
-    is_admin: false
+    email: '' as string,
+    name: '' as string,
+    phone: '' as string,
+    company: '' as string,
+    is_admin: false as boolean
   });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
       setFormData({
         email: user.email || '',
-        name: user.user_metadata?.name || '',
+        name: user.user_metadata?.full_name || '',
         phone: user.user_metadata?.phone || '',
         company: user.user_metadata?.company || '',
         is_admin: user.user_metadata?.is_admin || false
@@ -41,8 +42,10 @@ const Profile: React.FC = () => {
 
     try {
       const { error } = await supabase.auth.updateUser({
+        email: formData.email,
+        password: undefined,
         data: {
-          name: formData.name,
+          full_name: formData.name,
           phone: formData.phone,
           company: formData.company,
           is_admin: formData.is_admin
@@ -51,12 +54,12 @@ const Profile: React.FC = () => {
 
       if (error) throw error;
 
-      await updateUser();
       setSuccess('Perfil atualizado com sucesso!');
-      setError('');
+      setError(null);
     } catch (err) {
+      console.error('Erro ao atualizar perfil:', err);
       setError('Erro ao atualizar perfil. Por favor, tente novamente.');
-      setSuccess('');
+      setSuccess(null);
     }
   };
 
@@ -70,6 +73,7 @@ const Profile: React.FC = () => {
 
       window.location.href = '/login';
     } catch (err) {
+      console.error('Erro ao deletar conta:', err);
       setError('Erro ao deletar conta.');
     }
   };

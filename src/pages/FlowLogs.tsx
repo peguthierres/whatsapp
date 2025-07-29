@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../services/supabase';
-import { FlowLog } from '../types';
+import { FlowLog, Flow } from '../types';
 
-const FlowLogs: React.FC = () => {
+export default function FlowLogs() {
   const { user } = useAuth();
   const [logs, setLogs] = useState<FlowLog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [selectedFlowId, setSelectedFlowId] = useState<string>('');
-  const [flows, setFlows] = useState<any[]>([]);
+  const [flows, setFlows] = useState<Flow[]>([]);
 
   useEffect(() => {
     const fetchFlows = async () => {
@@ -29,6 +29,7 @@ const FlowLogs: React.FC = () => {
           fetchFlowLogs(data[0].id);
         }
       } catch (err) {
+        console.error('Erro ao carregar fluxos:', err);
         setError('Erro ao carregar fluxos.');
       }
     };
@@ -48,6 +49,7 @@ const FlowLogs: React.FC = () => {
       setLogs(data || []);
       setLoading(false);
     } catch (err) {
+      console.error('Erro ao carregar logs:', err);
       setError('Erro ao carregar logs.');
       setLoading(false);
     }
@@ -96,33 +98,42 @@ const FlowLogs: React.FC = () => {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Passo</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detalhes</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Timestamp
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Passo
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tipo
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          De
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Para
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Detalhes
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {logs.map((log) => (
                         <tr key={log.id}>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{new Date(log.timestamp).toLocaleString()}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{log.from}</div>
+                            <div className="text-sm text-gray-900">
+                              {new Date(log.timestamp).toLocaleString()}
+                            </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">{log.step}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                              {log.type}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{log.details}</div>
+                            <div className="text-sm text-gray-900">{log.type}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -130,7 +141,7 @@ const FlowLogs: React.FC = () => {
                               log.status === 'error' ? 'bg-red-100 text-red-800' :
                               'bg-yellow-100 text-yellow-800'
                             }`}>
-                              {log.status.charAt(0).toUpperCase() + log.status.slice(1)}
+                              {log.status}
                             </span>
                           </td>
                         </tr>

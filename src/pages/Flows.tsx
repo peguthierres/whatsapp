@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../services/supabase';
 import { Flow, Bot } from '../types';
+import { Link } from 'react-router-dom';
 
-const Flows: React.FC = () => {
+export default function Flows() {
   const { user } = useAuth();
   const [flows, setFlows] = useState<Flow[]>([]);
   const [bots, setBots] = useState<Bot[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [selectedBot, setSelectedBot] = useState<Bot | null>(null);
 
   useEffect(() => {
@@ -28,6 +29,7 @@ const Flows: React.FC = () => {
           fetchFlows(data[0].id);
         }
       } catch (err) {
+        console.error('Erro ao carregar bots:', err);
         setError('Erro ao carregar bots.');
       }
     };
@@ -47,33 +49,35 @@ const Flows: React.FC = () => {
       setFlows(data || []);
       setLoading(false);
     } catch (err) {
+      console.error('Erro ao carregar fluxos:', err);
       setError('Erro ao carregar fluxos.');
       setLoading(false);
     }
   };
 
   const handleBotChange = async (botId: string) => {
-    const bot = bots.find(b => b.id === botId);
+    const bot = bots.find((b) => b.id === botId);
     setSelectedBot(bot || null);
     fetchFlows(botId);
   };
 
   const handleToggleActive = async (flowId: string) => {
     try {
-      const flow = flows.find(f => f.id === flowId);
+      const flow = flows.find((f) => f.id === flowId);
       if (!flow) return;
 
       const { error } = await supabase
         .from('flows')
-        .update({ is_active: !flow.is_active })
+        .update({ active: !flow.active })
         .eq('id', flowId);
 
       if (error) throw error;
 
-      setFlows(flows.map(f =>
-        f.id === flowId ? { ...f, is_active: !f.is_active } : f
+      setFlows(flows.map((f) =>
+        f.id === flowId ? { ...f, active: !f.active } : f
       ));
     } catch (err) {
+      console.error('Erro ao atualizar fluxo:', err);
       setError('Erro ao atualizar fluxo.');
     }
   };
@@ -89,8 +93,9 @@ const Flows: React.FC = () => {
 
       if (error) throw error;
 
-      setFlows(flows.filter(f => f.id !== flowId));
+      setFlows(flows.filter((f) => f.id !== flowId));
     } catch (err) {
+      console.error('Erro ao deletar fluxo:', err);
       setError('Erro ao deletar fluxo.');
     }
   };
@@ -156,9 +161,9 @@ const Flows: React.FC = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              flow.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                              flow.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                             }`}>
-                              {flow.is_active ? 'Ativo' : 'Inativo'}
+                              {flow.active ? 'Ativo' : 'Inativo'}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -168,10 +173,10 @@ const Flows: React.FC = () => {
                             <button
                               onClick={() => handleToggleActive(flow.id)}
                               className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white ${
-                                flow.is_active ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'
+                                flow.active ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'
                               }`}
                             >
-                              {flow.is_active ? 'Desativar' : 'Ativar'}
+                              {flow.active ? 'Desativar' : 'Ativar'}
                             </button>
                             <button
                               onClick={() => handleDeleteFlow(flow.id)}

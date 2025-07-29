@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../services/supabase';
 import { Bot, Flow, Message } from '../types';
 
-const Sandbox: React.FC = () => {
+export default function Sandbox() {
   const { user } = useAuth();
   const [bots, setBots] = useState<Bot[]>([]);
   const [selectedBot, setSelectedBot] = useState<Bot | null>(null);
@@ -11,10 +11,11 @@ const Sandbox: React.FC = () => {
   const [selectedFlow, setSelectedFlow] = useState<Flow | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [testMessage, setTestMessage] = useState('');
 
   useEffect(() => {
+    if (!user) return;
     fetchBots();
   }, [user]);
 
@@ -33,7 +34,9 @@ const Sandbox: React.FC = () => {
         setSelectedBot(data[0]);
         fetchFlows(data[0].id);
       }
+      setLoading(false);
     } catch (err) {
+      console.error('Erro ao carregar bots:', err);
       setError('Erro ao carregar bots.');
     }
   };
@@ -51,13 +54,15 @@ const Sandbox: React.FC = () => {
       if (data && data.length > 0) {
         setSelectedFlow(data[0]);
       }
+      setLoading(false);
     } catch (err) {
+      console.error('Erro ao carregar fluxos:', err);
       setError('Erro ao carregar fluxos.');
     }
   };
 
   const handleBotChange = async (botId: string) => {
-    const bot = bots.find(b => b.id === botId);
+    const bot = bots.find((b) => b.id === botId);
     setSelectedBot(bot || null);
     if (bot) {
       fetchFlows(bot.id);
@@ -65,7 +70,7 @@ const Sandbox: React.FC = () => {
   };
 
   const handleFlowChange = async (flowId: string) => {
-    const flow = flows.find(f => f.id === flowId);
+    const flow = flows.find((f) => f.id === flowId);
     setSelectedFlow(flow || null);
   };
 
@@ -80,16 +85,19 @@ const Sandbox: React.FC = () => {
         id: Date.now().toString(),
         bot_id: selectedBot.id,
         from: 'test@example.com',
-        to: selectedBot.phone_number || '',
+        to: selectedBot.phone || '',
         content: testMessage,
-        type: 'text',
+        direction: 'out',
         status: 'sent',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        flow_id: selectedFlow.id,
+        type: 'text'
       };
 
       setMessages(prev => [newMessage, ...prev]);
       setTestMessage('');
     } catch (err) {
+      console.error('Erro ao enviar mensagem de teste:', err);
       setError('Erro ao enviar mensagem de teste.');
     }
   };

@@ -2,6 +2,34 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Important: Dependency Conflict Workaround
+
+To resolve dependency conflicts and enable successful builds in Netlify, we have made the following adjustments:
+
+1. Removed `prettier-plugin-tailwindcss` temporarily
+   - Tailwind CSS classes will not be sorted automatically during formatting
+   - Use manual formatting or a different approach for Tailwind classes organization
+
+2. Updated dependency versions:
+   - TypeScript: ^4.9.5 (from ^5.2.0)
+   - @typescript-eslint/eslint-plugin: ^5.62.0 (from ^6.0.0)
+   - eslint-plugin-jest: ^25.7.0 (from ^25.3.0)
+
+These changes were necessary because:
+1. `react-scripts@5.0.1` requires TypeScript ^3.2.1 || ^4
+2. Newer versions of TypeScript and related packages were causing peer dependency conflicts
+
+For local development, you can still use `--legacy-peer-deps`:
+```bash
+npm install --legacy-peer-deps
+```
+
+This flag will be required for both local development and Netlify builds.
+
+## Available Scripts
+
+In the project directory, you can run:
+
 ## Available Scripts
 
 In the project directory, you can run:
